@@ -24,3 +24,4 @@ ignore_missing_imports = true
 # ── Pytest ──────────────────────────────────────────────────────────────────
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
