@@ -211,10 +211,25 @@ jobs:
           severity: CRITICAL,HIGH
           ignore-unfixed: true
 
+      # ── SBOM ──────────────────────────────────────────────────────────────
+      - name: Generate SBOM
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: inventory-service:ci
+          format: spdx-json
+          output: sbom.spdx.json
+
+      - name: Upload SBOM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.spdx.json
+          retention-days: 90
 
       # ── Push to GHCR (main only) ──────────────────────────────────────────
       # Re-runs the build with push=true. The GHA layer cache makes this ~instant.
       - name: Push to GHCR
+        id: push
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: docker/build-push-action@v6
         with:
@@ -227,3 +242,28 @@ jobs:
           platforms: linux/amd64
           provenance: true
           sbom: true
+
+      # ── Cosign: keyless sign + SBOM attestation (main only) ───────────────
+      # Signing uses GitHub OIDC — no private key needed.
+      # Verify with:
+      #   cosign verify \
+      #     --certificate-identity-regexp="https://github.com/<owner>/<repo>/.*" \
+      #     --certificate-oidc-issuer="https://token.actions.githubusercontent.com" \
+      #     ghcr.io/<owner>/<repo>:<tag>
+      - name: Install Cosign
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign image
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          cosign sign --yes \
+            ghcr.io/${{ github.repository }}@${{ steps.push.outputs.digest }}
+
+      - name: Attest SBOM
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          cosign attest --yes \
+            --predicate sbom.spdx.json \
+            --type spdxjson \
+            ghcr.io/${{ github.repository }}@${{ steps.push.outputs.digest }}
