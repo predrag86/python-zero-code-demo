@@ -39,8 +39,12 @@ _next_id = 4
 
 @app.get("/")
 def index():
-    logger.info("Health check")
     return jsonify({"service": "inventory-service", "version": "1.0.0", "status": "ok"})
+
+
+@app.get("/healthz")
+def healthz():
+    return jsonify({"status": "ok"})
 
 
 @app.get("/items")

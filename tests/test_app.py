@@ -11,6 +11,12 @@ def test_health(client):
     assert data["service"] == "inventory-service"
 
 
+def test_healthz(client):
+    resp = client.get("/healthz")
+    assert resp.status_code == 200
+    assert resp.get_json() == {"status": "ok"}
+
+
 def test_list_items(client):
     resp = client.get("/items")
     assert resp.status_code == 200

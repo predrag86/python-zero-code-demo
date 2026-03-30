@@ -187,7 +187,7 @@ jobs:
             inventory-service:ci
 
           echo "Waiting for app to be ready..."
-          timeout 30 bash -c 'until curl -sf http://localhost:5000/ > /dev/null; do sleep 1; done'
+          timeout 30 bash -c 'until curl -sf http://localhost:5000/healthz > /dev/null; do sleep 1; done'
           echo "App is ready."
 
           curl -sf http://localhost:5000/ | jq -e '.status == "ok"'
