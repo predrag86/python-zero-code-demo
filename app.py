@@ -17,7 +17,7 @@ from flask import Flask, jsonify, request
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s [%(name)s] "
-           "[trace_id=%(otelTraceID)s span_id=%(otelSpanID)s] %(message)s",
+    "[trace_id=%(otelTraceID)s span_id=%(otelSpanID)s] %(message)s",
 )
 logger = logging.getLogger("inventory-service")
 
@@ -35,6 +35,7 @@ _next_id = 4
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
+
 
 @app.get("/")
 def index():
@@ -137,6 +138,7 @@ def burst():
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _fib(n: int) -> int:
     if n <= 1:
