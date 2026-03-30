@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.2.1 (2026-03-30)
+
+### Bug Fixes
+
+- Trivy sarif
+  ([`a1dd539`](https://github.com/predrag86/python-zero-code-demo/commit/a1dd539aa8abfc85b2bf996aa9bd1e297d5d0d5c))
+
+
 ## v0.2.0 (2026-03-30)
 
 ### Features
