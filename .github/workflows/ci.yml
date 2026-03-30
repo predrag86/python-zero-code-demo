@@ -130,11 +130,11 @@ jobs:
           fetch-depth: 0   # needed so metadata-action can read git tags
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to GHCR
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -146,7 +146,7 @@ jobs:
       #   on PRs → sha-<sha> only (image not pushed)
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
@@ -158,7 +158,7 @@ jobs:
       # Runs ruff, mypy, and pytest inside the container to confirm the image
       # build environment is clean — separate from the native CI jobs above.
       - name: Build Docker test stage
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           target: test
@@ -169,7 +169,7 @@ jobs:
       # Loads into the local Docker daemon for smoke test and Trivy.
       # Uses the GHA layer cache warmed by the test-stage build above.
       - name: Build runtime image (local load)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           target: runtime
@@ -231,7 +231,7 @@ jobs:
       - name: Push to GHCR
         id: push
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           target: runtime
