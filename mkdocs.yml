@@ -1,6 +1,6 @@
 site_name: inventory-service
 site_description: OpenTelemetry zero-code instrumentation demo for a Python Flask service
-repo_url: https://github.com/predr/python-zero-code-demo
+repo_url: https://github.com/predrag86/python-zero-code-demo
 repo_name: python-zero-code-demo
 edit_uri: edit/main/docs/
 
