@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.4.0 (2026-03-30)
+
+### Features
+
+- Using new version of Github actions
+  ([`9510a38`](https://github.com/predrag86/python-zero-code-demo/commit/9510a38d1c9b73f78245d83e83dd3c9932ea6ba4))
+
+
 ## v0.3.0 (2026-03-30)
 
 ### Features
