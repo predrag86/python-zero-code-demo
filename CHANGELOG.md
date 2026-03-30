@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.1.0 (2026-03-30)
+
+### Features
+
+- Added health check
+  ([`3cfe064`](https://github.com/predrag86/python-zero-code-demo/commit/3cfe06497820243eb4ee0f8549703d274723b081))
+
+
 ## v0.0.4 (2026-03-30)
 
 ### Bug Fixes
