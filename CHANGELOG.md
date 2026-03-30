@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.2.0 (2026-03-30)
+
+### Features
+
+- Use nodejs 24 for github actions
+  ([`00c38e5`](https://github.com/predrag86/python-zero-code-demo/commit/00c38e5108133467d284ecef389eeb1f4d0d9296))
+
+
 ## v0.1.0 (2026-03-30)
 
 ### Features
