@@ -1,9 +1,15 @@
 # CHANGELOG
 
 
+## v0.5.0 (2026-03-30)
+
+
 ## v0.4.0 (2026-03-30)
 
 ### Features
+
+- Added new version for Github actions for python and checkout
+  ([`e049ac0`](https://github.com/predrag86/python-zero-code-demo/commit/e049ac0e907d5b495461c3bb78d5f4ce5b48947f))
 
 - Using new version of Github actions
   ([`9510a38`](https://github.com/predrag86/python-zero-code-demo/commit/9510a38d1c9b73f78245d83e83dd3c9932ea6ba4))
