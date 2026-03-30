@@ -1,7 +1,15 @@
 # CHANGELOG
 
 
+## v0.7.0 (2026-03-30)
+
+
 ## v0.6.0 (2026-03-30)
+
+### Features
+
+- Update Github action to upload artifacts
+  ([`0ae04ab`](https://github.com/predrag86/python-zero-code-demo/commit/0ae04ab6f69a31c85c8895cd83f069095eb3dda0))
 
 
 ## v0.5.0 (2026-03-30)
