@@ -1,7 +1,15 @@
 # CHANGELOG
 
 
+## v0.6.0 (2026-03-30)
+
+
 ## v0.5.0 (2026-03-30)
+
+### Features
+
+- Updated Github actions for docker
+  ([`a3031c3`](https://github.com/predrag86/python-zero-code-demo/commit/a3031c3e4610d3851829ee07b2f7488228c93954))
 
 
 ## v0.4.0 (2026-03-30)
