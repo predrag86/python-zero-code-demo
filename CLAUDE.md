@@ -41,6 +41,49 @@ After registration, deploy with:
 aws ecs update-service --cluster <cluster> --service <service> --task-definition inventory-service --region $AWS_REGION
 ```
 
+## CI/CD pipeline
+
+`.github/workflows/ci.yml` runs on every push to `main` and every PR:
+
+| Job | Tool | Runs on |
+|---|---|---|
+| `lint` | `ruff check` + `ruff format --check` | all events |
+| `typecheck` | `mypy app.py` | all events |
+| `test` | `pytest` | all events |
+| `release` | `python-semantic-release` | push to main only |
+| `docker` | build → smoke test → Trivy → push | all events (push to GHCR on main only) |
+
+**Automatic versioning** uses [Angular commit convention](https://www.conventionalcommits.org/):
+- `fix: ...` → patch bump (0.1.0 → 0.1.1)
+- `feat: ...` → minor bump (0.1.0 → 0.2.0)
+- `feat!:` or footer `BREAKING CHANGE:` → major bump
+
+Version is stored in `pyproject.toml → [project] version` and tagged as `v<version>` in git. Images are pushed to `ghcr.io/<owner>/<repo>` tagged `<version>`, `sha-<sha>`, and `latest`.
+
+## Docker image architecture
+
+4-stage multi-stage build:
+1. **`base`** — creates a virtualenv (`/app/.venv`)
+2. **`deps`** — installs `requirements.txt` + runs `opentelemetry-bootstrap` into the venv
+3. **`test`** (CI gate, not a parent of runtime) — installs `requirements-dev.txt`, runs ruff/mypy/pytest; built explicitly with `--target test`
+4. **`runtime`** — fresh `python:3.12-slim`, copies only `/app/.venv` from `deps` + `app.py`; runs as non-root `appuser`
+
+`docker build .` builds only `base → deps → runtime` (skips the test stage). The `.dockerignore` keeps `tests/`, `requirements-dev.txt`, and `pyproject.toml` in the build context so the test stage can use them.
+
+## Dev tooling
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+
+ruff check .          # lint
+ruff format --check . # format check (ruff format . to auto-fix)
+mypy app.py           # type check
+pytest --tb=short -v  # run tests
+
+docker build --target test .    # run full check suite inside Docker
+docker build .                  # build optimised runtime image only
+```
+
 ## Architecture constraints
 
 - **Do not add OpenTelemetry imports to `app.py`** — the entire point of the demo is zero-code instrumentation. The instrumentation packages in `requirements.txt` exist only for the `opentelemetry-instrument` CLI; `app.py` must remain import-free of OTel.

@@ -1,22 +1,51 @@
-FROM python:3.12-slim
+# ── Stage 1: shared venv base ──────────────────────────────────────────────
+FROM python:3.12-slim AS base
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+WORKDIR /app
+RUN python -m venv $VIRTUAL_ENV
 
+# ── Stage 2: runtime dependencies ──────────────────────────────────────────
+# Installing into a venv lets us copy just the venv to the runtime stage,
+# leaving pip and the rest of the system Python out of the final image.
+FROM base AS deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt && \
+    opentelemetry-bootstrap -a install
+
+# ── Stage 3: test gate (CI only — not a parent of the runtime stage) ───────
+# Built explicitly with --target test. Running `docker build .` skips this.
+FROM deps AS test
+COPY requirements-dev.txt .
+RUN pip install --no-cache-dir -r requirements-dev.txt
+COPY pyproject.toml .
+COPY app.py .
+COPY tests/ tests/
+RUN ruff check . && \
+    ruff format --check . && \
+    mypy app.py && \
+    pytest --tb=short -q
+
+# ── Stage 4: lean runtime image ────────────────────────────────────────────
+# Copies only the pre-built venv from the deps stage — no pip, no dev tools,
+# no test code. The base image is a fresh python:3.12-slim (no venv leftovers).
+FROM python:3.12-slim AS runtime
+ENV VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 WORKDIR /app
 
-COPY requirements.txt .
+RUN adduser --disabled-password --no-create-home --uid 1001 appuser
 
-# Step 1: install app deps + OTel core
-RUN pip install --no-cache-dir -r requirements.txt
+COPY --from=deps --chown=appuser:appuser /app/.venv /app/.venv
+COPY --chown=appuser:appuser app.py .
 
-# Step 2: auto-discover and install instrumentors for all installed libraries.
-# This is the idiomatic zero-code setup — no manual imports needed in app.py.
-RUN opentelemetry-bootstrap -a install
-
-COPY app.py .
-
+USER appuser
 EXPOSE 5000
 
-# Zero-code entry point: opentelemetry-instrument wraps gunicorn.
-# All OTel configuration is provided via OTEL_* env vars in docker-compose.yml.
 CMD ["opentelemetry-instrument", \
      "gunicorn", \
      "--bind", "0.0.0.0:5000", \

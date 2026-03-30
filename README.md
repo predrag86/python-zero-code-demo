@@ -23,9 +23,9 @@ opentelemetry-instrument gunicorn --bind 0.0.0.0:5000 --workers 1 app:app
 
 All OTel configuration is via environment variables — no code changes required.
 
-## Quick start
+---
 
-Set the OTel gateway endpoint and start the app:
+## Quick start
 
 ```bash
 OTEL_GATEWAY_ENDPOINT=http://<your-gateway>:4318 docker compose up --build
@@ -46,6 +46,46 @@ If `OTEL_GATEWAY_ENDPOINT` is not set it defaults to `http://localhost:4318`.
 | `OTEL_PYTHON_LOG_CORRELATION` | `true` | Inject `trace_id`/`span_id` into log records |
 | `OTEL_METRIC_EXPORT_INTERVAL` | `5000` | Export metrics every 5 s |
 | `OTEL_TRACES_SAMPLER` | `always_on` | Sample 100% of traces |
+
+---
+
+## CI/CD
+
+The pipeline runs on every push to `main` and every pull request.
+
+```
+lint ──┐
+       ├──→ release (main only) ──→ docker: build → smoke test → Trivy → push
+typecheck ─┤
+test ──────┘
+```
+
+| Job | Tool | Runs on |
+|---|---|---|
+| `lint` | ruff (lint + format check) | all events |
+| `typecheck` | mypy | all events |
+| `test` | pytest | all events |
+| `release` | python-semantic-release | push to `main` only |
+| `docker` | multi-stage build, smoke test, Trivy scan, GHCR push | all events |
+
+Images are published to `ghcr.io/<owner>/python-zero-code-demo` and tagged
+`<version>`, `sha-<short-sha>`, and `latest`. Trivy results appear in the
+**GitHub Security** tab (SARIF upload).
+
+### Automatic versioning
+
+Versions are bumped automatically from commit messages using the
+[Angular convention](https://www.conventionalcommits.org/):
+
+| Commit prefix | Bump |
+|---|---|
+| `fix:` | patch — `0.1.0 → 0.1.1` |
+| `feat:` | minor — `0.1.0 → 0.2.0` |
+| `feat!:` / `BREAKING CHANGE:` footer | major — `0.1.0 → 1.0.0` |
+
+`chore:`, `docs:`, `style:` etc. do not trigger a release.
+
+---
 
 ## Deploying to AWS ECS (Fargate)
 
@@ -86,7 +126,21 @@ aws ecs update-service \
 ## Local development
 
 ```bash
+pip install -r requirements.txt -r requirements-dev.txt
+
+ruff check .              # lint
+ruff format --check .     # format check  (ruff format . to auto-fix)
+mypy app.py               # type check
+pytest --tb=short -v      # run tests
+
+# Build and run via Docker Compose
 OTEL_GATEWAY_ENDPOINT=http://<your-gateway>:4318 docker compose up --build
+
+# Build only the runtime image
+docker build .
+
+# Run the full test gate inside Docker (ruff + mypy + pytest)
+docker build --target test .
 ```
 
 ---
