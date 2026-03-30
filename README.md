@@ -4,6 +4,8 @@ Demonstrates **OpenTelemetry zero-code instrumentation** for a Python Flask serv
 `app.py` contains **no OpenTelemetry imports** — all traces, metrics, and logs are
 injected at runtime by the `opentelemetry-instrument` CLI wrapper via environment variables.
 
+**[Full documentation →](https://predrag86.github.io/python-zero-code-demo/)**
+
 ## How zero-code instrumentation works
 
 The `Dockerfile` runs two extra steps after `pip install`:
