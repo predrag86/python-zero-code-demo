@@ -1,0 +1,15 @@
+flask==3.1.1
+requests==2.32.3
+gunicorn==23.0.0
+
+# OpenTelemetry — app does NOT import these; they are used by the
+# `opentelemetry-instrument` CLI wrapper and auto-instrumentors.
+opentelemetry-distro==0.50b0
+opentelemetry-exporter-otlp==1.29.0
+
+# Instrumentors for the libraries used in app.py.
+# These are auto-discovered and installed by `opentelemetry-bootstrap -a install`
+# inside the Dockerfile, but listed here for clarity and reproducibility.
+opentelemetry-instrumentation-flask==0.50b0
+opentelemetry-instrumentation-requests==0.50b0
+opentelemetry-instrumentation-logging==0.50b0

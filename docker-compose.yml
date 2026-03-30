@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      # --- Service identity ---
+      OTEL_SERVICE_NAME: "inventory-service"
+      OTEL_SERVICE_VERSION: "1.0.0"
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=demo,service.namespace=warehouse"
+
+      # --- Exporter: all signals → OTel gateway via OTLP/HTTP ---
+      OTEL_EXPORTER_OTLP_ENDPOINT: "${OTEL_GATEWAY_ENDPOINT:-http://localhost:4318}"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+
+      # --- Enable all three signals ---
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOGS_EXPORTER: "otlp"
+
+      # --- Logging bridge: inject trace_id / span_id into Python log records ---
+      OTEL_PYTHON_LOG_CORRELATION: "true"
+      OTEL_PYTHON_LOG_LEVEL: "info"
+
+      # --- Metrics: export every 5 s so the demo shows data quickly ---
+      OTEL_METRIC_EXPORT_INTERVAL: "5000"
+
+      # --- Tracing: sample everything ---
+      OTEL_TRACES_SAMPLER: "always_on"
+
+      # --- Propagation: W3C TraceContext + Baggage ---
+      OTEL_PROPAGATORS: "tracecontext,baggage"
+
+      # Self-referencing URL for /chain and /burst endpoints
+      SELF_URL: "http://app:5000"
