@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.3.0 (2026-03-30)
+
+### Features
+
+- Adde SBOM and Cosign
+  ([`8d4a438`](https://github.com/predrag86/python-zero-code-demo/commit/8d4a4387805846fbe6afcbfe54982d14d47695f6))
+
+
 ## v0.2.1 (2026-03-30)
 
 ### Bug Fixes
