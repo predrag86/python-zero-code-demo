@@ -10,8 +10,9 @@ import logging
 import os
 import random
 import time
-from flask import Flask, jsonify, request
+
 import requests as http_client
+from flask import Flask, jsonify, request
 
 logging.basicConfig(
     level=logging.INFO,
