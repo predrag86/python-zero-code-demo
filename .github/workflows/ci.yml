@@ -18,7 +18,6 @@ env:
 permissions:
   contents: write          # semantic-release: push version commit + tag
   packages: write          # push image to GHCR
-  security-events: write   # upload Trivy SARIF to GitHub Security
   id-token: write          # build provenance / SBOM attestations
 
 # ── Job 1: Ruff ─────────────────────────────────────────────────────────────
@@ -212,23 +211,6 @@ jobs:
           severity: CRITICAL,HIGH
           ignore-unfixed: true
 
-      # ── Trivy: SARIF upload to GitHub Security tab ────────────────────────
-      - name: Trivy scan (SARIF)
-        if: always()
-        uses: aquasecurity/trivy-action@v0.35.0
-        with:
-          image-ref: inventory-service:ci
-          format: sarif
-          output: trivy-results.sarif
-          severity: CRITICAL,HIGH,MEDIUM
-          ignore-unfixed: true
-
-      - name: Upload Trivy SARIF to GitHub Security
-        if: always()
-        continue-on-error: true   # requires GitHub Advanced Security on private repos
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: trivy-results.sarif
 
       # ── Push to GHCR (main only) ──────────────────────────────────────────
       # Re-runs the build with push=true. The GHA layer cache makes this ~instant.
