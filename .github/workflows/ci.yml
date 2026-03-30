@@ -201,7 +201,7 @@ jobs:
 
       # ── Trivy: fail on unfixed CRITICAL/HIGH ──────────────────────────────
       - name: Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: inventory-service:ci
           format: table
@@ -212,7 +212,7 @@ jobs:
       # ── Trivy: SARIF upload to GitHub Security tab ────────────────────────
       - name: Trivy scan (SARIF)
         if: always()
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: inventory-service:ci
           format: sarif
