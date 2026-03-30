@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.0.2 (2026-03-30)
+
+### Bug Fixes
+
+- Fixed trivy
+  ([`d843bb8`](https://github.com/predrag86/python-zero-code-demo/commit/d843bb8680afcdf5249a3114a19cf38eeb24980c))
+
+
 ## v0.0.1 (2026-03-30)
 
 ### Bug Fixes
