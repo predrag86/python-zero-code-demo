@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.8.1 (2026-03-30)
+
+### Bug Fixes
+
+- Mcdoc fix
+  ([`fb76963`](https://github.com/predrag86/python-zero-code-demo/commit/fb76963e0e261f000562b5ad5f953ba5e7053842))
+
+
 ## v0.8.0 (2026-03-30)
 
 
