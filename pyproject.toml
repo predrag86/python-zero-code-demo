@@ -1,6 +1,6 @@
 [project]
 name = "inventory-service"
-version = "0.8.1"
+version = "0.8.2"
 
 # ── Semantic Release ────────────────────────────────────────────────────────
 [tool.semantic_release]

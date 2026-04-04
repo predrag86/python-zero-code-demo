@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.8.2 (2026-04-04)
+
+### Bug Fixes
+
+- Pylint and workflow
+  ([`65e786c`](https://github.com/predrag86/python-zero-code-demo/commit/65e786cc946de0a0eb0684d865cdebf7271c0a0c))
+
+### Documentation
+
+- Update readme
+  ([`52d64e6`](https://github.com/predrag86/python-zero-code-demo/commit/52d64e6bffed27e8962771afd44bea9d6ad776ac))
+
+
 ## v0.8.1 (2026-03-30)
 
 ### Bug Fixes
