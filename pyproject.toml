@@ -37,6 +37,11 @@ disable = [
   "E0401",                     # import-error (mypy handles this)
 ]
 
+# ── Bandit ──────────────────────────────────────────────────────────────────
+[tool.bandit]
+severity = "medium"   # ignore low-severity findings
+confidence = "medium" # ignore low-confidence findings
+
 # ── MyPy ────────────────────────────────────────────────────────────────────
 [tool.mypy]
 python_version = "3.12"

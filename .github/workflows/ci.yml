@@ -89,6 +89,9 @@ jobs:
       - name: pylint
         run: pylint app.py tests/
 
+      - name: bandit
+        run: bandit -r app.py
+
       - name: mypy
         run: mypy app.py
 
