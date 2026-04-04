@@ -11,7 +11,7 @@ logging.basicConfig(
     force=True,
 )
 
-from app import app as flask_app  # noqa: E402
+from app import app as flask_app  # noqa: E402  # pylint: disable=wrong-import-position
 
 
 @pytest.fixture()
@@ -21,5 +21,5 @@ def app():
 
 
 @pytest.fixture()
-def client(app):
+def client(app):  # pylint: disable=redefined-outer-name
     return app.test_client()

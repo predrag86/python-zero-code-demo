@@ -93,7 +93,7 @@ jobs:
 # ── Job 3: Unit Tests ────────────────────────────────────────────────────────
   test:
     name: Unit Tests (pytest)
-    needs: [build]
+    needs: [lint]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

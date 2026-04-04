@@ -29,7 +29,7 @@ _inventory: dict[int, dict] = {
     2: {"id": 2, "name": "Gadget B", "quantity": 50},
     3: {"id": 3, "name": "Doohickey C", "quantity": 200},
 }
-_next_id = 4
+_next_id = 4  # pylint: disable=invalid-name
 
 
 # ---------------------------------------------------------------------------
@@ -78,7 +78,7 @@ def get_item(item_id: int):
 @app.post("/items")
 def create_item():
     """Creates an item. Fails ~20% of the time to demonstrate error spans."""
-    global _next_id
+    global _next_id  # pylint: disable=global-statement
 
     body = request.get_json(silent=True) or {}
     name = body.get("name", "").strip()
