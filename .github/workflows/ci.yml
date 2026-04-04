@@ -39,6 +39,8 @@ jobs:
       - run: pip install -r requirements.txt -r requirements-dev.txt
       - name: Verify dependencies
         run: pip check
+      - name: Audit dependencies for known vulnerabilities
+        run: pip-audit -r requirements.txt
       - name: Verify app is importable
         run: python -c "import app"
 
