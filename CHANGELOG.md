@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.9.0 (2026-04-04)
+
+### Bug Fixes
+
+- Pip-audit fix
+  ([`db66a05`](https://github.com/predrag86/python-zero-code-demo/commit/db66a05536424520829b478cab93183eb78b83f1))
+
+### Features
+
+- Added pip-audit
+  ([`f89bcd6`](https://github.com/predrag86/python-zero-code-demo/commit/f89bcd64806ac6b2a83f2ed6575e4e67674f4595))
+
+
 ## v0.8.2 (2026-04-04)
 
 ### Bug Fixes
