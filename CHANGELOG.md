@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v0.10.0 (2026-04-04)
+
+### Bug Fixes
+
+- Fixed issues with bandit
+  ([`917a8c3`](https://github.com/predrag86/python-zero-code-demo/commit/917a8c32639bf6ee739af42fa97b7af89ada8d15))
+
+### Features
+
+- Added bandint unit testing
+  ([`291ab44`](https://github.com/predrag86/python-zero-code-demo/commit/291ab44010325b4f3895fd5c47369a4539678230))
+
+
 ## v0.9.0 (2026-04-04)
 
 ### Bug Fixes
