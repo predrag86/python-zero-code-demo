@@ -110,7 +110,7 @@ jobs:
             requirements.txt
             requirements-dev.txt
       - run: pip install -r requirements.txt -r requirements-dev.txt
-      - run: pytest --tb=short -v
+      - run: pytest --tb=short -v --cov=app --cov-fail-under=80 --cov-report=term-missing
 
 # ── Job 4: Semantic Release (main only) ──────────────────────────────────────
 # Analyzes commits since the last tag (Angular convention: fix/feat/BREAKING CHANGE),
