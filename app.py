@@ -50,7 +50,7 @@ def healthz():
 @app.get("/items")
 def list_items():
     """Simulates a DB read with variable latency (0–150 ms)."""
-    delay = random.uniform(0, 0.15)
+    delay = random.uniform(0, 0.15)  # nosec B311 — latency simulation, not crypto
     time.sleep(delay)
     logger.info("Listed %d items (latency=%.0fms)", len(_inventory), delay * 1000)
     return jsonify(list(_inventory.values()))
@@ -59,7 +59,7 @@ def list_items():
 @app.get("/items/<int:item_id>")
 def get_item(item_id: int):
     """Simulates a heavier per-item lookup (0–300 ms). Returns 404 for id > 1000."""
-    delay = random.uniform(0, 0.3)
+    delay = random.uniform(0, 0.3)  # nosec B311 — latency simulation, not crypto
     time.sleep(delay)
 
     if item_id > 1000:
@@ -89,7 +89,7 @@ def create_item():
         return jsonify({"error": "name is required"}), 400
 
     # Simulated intermittent downstream write failure
-    if random.random() < 0.20:
+    if random.random() < 0.20:  # nosec B311 — demo failure simulation, not crypto
         logger.error("Simulated write failure creating item '%s'", name)
         raise RuntimeError(f"Downstream write failure for item '{name}'")
 
@@ -103,7 +103,7 @@ def create_item():
 @app.get("/process")
 def process():
     """CPU-bound work: computes Fibonacci to demonstrate non-I/O latency."""
-    n = random.randint(30, 35)
+    n = random.randint(30, 35)  # nosec B311 — Fibonacci input range, not crypto
     start = time.perf_counter()
     result = _fib(n)
     elapsed = time.perf_counter() - start
@@ -154,4 +154,4 @@ def _fib(n: int) -> int:
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000)  # nosec B104 — dev-only fallback, prod uses gunicorn
