@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.11.0 (2026-04-04)
+
+### Features
+
+- Added code coverage threshold to 80%
+  ([`19df781`](https://github.com/predrag86/python-zero-code-demo/commit/19df781db3c5bfe776a12c0c7e688ad9315d69e4))
+
+
 ## v0.10.0 (2026-04-04)
 
 ### Bug Fixes
