@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.12.0 (2026-04-06)
+
+### Features
+
+- Improved CI
+  ([`7b8109a`](https://github.com/predrag86/python-zero-code-demo/commit/7b8109afeac86f95c2126c3f9fc5c7623235c411))
+
+
 ## v0.11.0 (2026-04-04)
 
 ### Features
