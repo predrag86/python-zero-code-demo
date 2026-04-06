@@ -499,6 +499,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#ciyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ci.yml
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ci.yml">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#jobs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -507,8 +519,7 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Jobs">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
   <a href="#build" class="md-nav__link">
@@ -555,10 +566,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#docker-job-steps" class="md-nav__link">
+  <a href="#release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Docker job steps
+        Release
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker
       
     </span>
   </a>
@@ -567,6 +589,28 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codeqlyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        codeql.yml
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scorecardyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scorecard.yml
+      
+    </span>
+  </a>
   
 </li>
       
@@ -708,6 +752,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#ciyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ci.yml
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ci.yml">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#jobs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -716,8 +772,7 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Jobs">
-      <ul class="md-nav__list">
+</li>
         
           <li class="md-nav__item">
   <a href="#build" class="md-nav__link">
@@ -764,10 +819,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#docker-job-steps" class="md-nav__link">
+  <a href="#release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Docker job steps
+        Release
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker
       
     </span>
   </a>
@@ -776,6 +842,28 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#codeqlyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        codeql.yml
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scorecardyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        scorecard.yml
+      
+    </span>
+  </a>
   
 </li>
       
@@ -827,13 +915,15 @@
 
 
 <h1 id="cicd">CI/CD</h1>
-<p>The pipeline runs on every push to <code>main</code> and every pull request.</p>
+<p>Three GitHub Actions workflows run automatically.</p>
+<h2 id="ciyml">ci.yml</h2>
+<p>Runs on every push to <code>main</code> and every pull request.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>build ──┬──→ lint ──┐
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        │           ├──→ release (main only) ──→ docker: build → smoke test → Trivy → SARIF → push → sign
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        │           ├──→ release (main, approval required) ──→ docker: build → smoke → Trivy → SARIF → push → sign
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        └──→ test ──┘
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>dependency-review (PRs only, parallel)
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>dependency-review (PRs only)
 </code></pre></div>
-<h2 id="jobs">Jobs</h2>
+<h3 id="jobs">Jobs</h3>
 <table>
 <thead>
 <tr>
@@ -846,7 +936,7 @@
 <tbody>
 <tr>
 <td><code>build</code></td>
-<td>pip install, pip-audit, import check</td>
+<td>pip install (cached venv), pip-audit, import check</td>
 <td>—</td>
 <td>all events</td>
 </tr>
@@ -864,7 +954,7 @@
 </tr>
 <tr>
 <td><code>test</code></td>
-<td>pytest (Python 3.11, 3.12, 3.13 matrix) + Codecov</td>
+<td>pytest matrix (Python 3.11, 3.12, 3.13) + Codecov</td>
 <td><code>build</code></td>
 <td>all events</td>
 </tr>
@@ -883,41 +973,65 @@
 </tbody>
 </table>
 <h3 id="build">Build</h3>
-<p>Installs all dependencies, runs <code>pip check</code> to verify consistency, runs <code>pip-audit</code>
-to flag known CVEs in <code>requirements.txt</code>, and verifies <code>app.py</code> is importable.
-Acts as the gate for <code>lint</code> and <code>test</code>.</p>
+<ol>
+<li>Creates a <code>.venv</code> and installs <code>requirements.txt</code> + <code>requirements-dev.txt</code> into it.</li>
+<li>Saves the venv to <code>actions/cache</code> under key <code>venv-{os}-py3.12-{hash(requirements files)}</code>.</li>
+<li>Runs <code>pip check</code> (dependency consistency), <code>pip-audit</code> (CVE scan), and <code>python -c "import app"</code>.</li>
+</ol>
+<p>Downstream jobs restore the cache and skip <code>pip install</code> entirely on a cache hit. The Python 3.12 <code>test</code> matrix entry always hits the same cache. Python 3.11 and 3.13 build their own caches on first run and hit on subsequent runs.</p>
 <h3 id="dependency-review-prs-only">Dependency Review (PRs only)</h3>
-<p>Runs <code>actions/dependency-review-action</code> on every pull request. Blocks merge if any
-newly introduced dependency has a known vulnerability. Runs independently of <code>build</code>
-so it does not add to the critical path.</p>
+<p><code>actions/dependency-review-action</code> compares the dependency graph before and after the PR. Blocks merge if any newly introduced package has a known vulnerability.</p>
 <h3 id="lint">Lint</h3>
-<p>Runs in parallel with <code>test</code> (both gate only on <code>build</code>):</p>
+<p>Restores the venv from cache, then runs in sequence:</p>
 <ol>
 <li><strong>black</strong> — enforces consistent formatting</li>
-<li><strong>ruff check --fix</strong> + <strong>ruff format</strong> — lints and formats; any changes are committed back to the branch automatically (skipped for fork PRs)</li>
+<li><strong>ruff check --fix</strong> + <strong>ruff format</strong> — lints and formats; changes are committed back to the branch automatically (skipped for fork PRs)</li>
 <li><strong>pylint</strong> — static analysis</li>
 <li><strong>bandit</strong> — security-focused static analysis</li>
 <li><strong>mypy</strong> — type checking</li>
 </ol>
 <h3 id="test">Test</h3>
-<p>Runs in parallel with <code>lint</code>. Uses a matrix across <strong>Python 3.11, 3.12, and 3.13</strong>
-(<code>fail-fast: false</code> so all three variants always complete):</p>
+<p>Runs in parallel with <code>lint</code>. Matrix across <strong>Python 3.11, 3.12, and 3.13</strong> (<code>fail-fast: false</code>):</p>
 <ul>
-<li><code>pytest</code> with <code>--cov=app --cov-fail-under=80</code> — build fails if coverage drops below 80%</li>
-<li>Coverage XML uploaded to <strong>Codecov</strong> from the Python 3.12 run only (avoids triple uploads)</li>
+<li>Each matrix entry restores its own cached venv (key includes the Python version).</li>
+<li><code>pytest --cov=app --cov-fail-under=80</code> — build fails if coverage drops below 80%.</li>
+<li><code>pytest-github-actions-annotate-failures</code> is installed and auto-activates — failed tests appear as inline annotations on PR diffs.</li>
+<li>Coverage XML uploaded to <strong>Codecov</strong> from the 3.12 run only.</li>
 </ul>
-<h3 id="docker-job-steps">Docker job steps</h3>
+<h3 id="release">Release</h3>
+<p>Protected by the <strong><code>production</code> GitHub Environment</strong>. Before the job starts, GitHub pauses and waits for a required reviewer to approve. This gates both the version tag/release and (because <code>docker</code> depends on <code>release</code>) the GHCR push behind a human approval.</p>
+<p>Configure reviewers at <strong>Settings → Environments → production</strong>.</p>
+<p>Uses <code>python-semantic-release</code> with the Angular commit convention — see <a href="#automatic-versioning">Automatic versioning</a> below.</p>
+<h3 id="docker">Docker</h3>
 <ol>
 <li><strong>Build test stage</strong> — runs ruff, mypy, and pytest inside the container</li>
 <li><strong>Build runtime image</strong> — loaded locally for smoke testing and scanning</li>
 <li><strong>Smoke test</strong> — starts the container, hits key endpoints with <code>curl</code></li>
 <li><strong>Trivy scan (table)</strong> — fails the build on unfixed <code>CRITICAL</code> or <code>HIGH</code> vulnerabilities</li>
-<li><strong>Trivy SARIF upload</strong> — sends findings to the repo's Security → Code scanning tab</li>
+<li><strong>Trivy SARIF upload</strong> — sends findings to Security → Code scanning</li>
 <li><strong>Generate SBOM</strong> — Trivy produces an SPDX JSON file, uploaded as a workflow artifact (90-day retention)</li>
-<li><strong>Push to GHCR</strong> — only on <code>main</code>; re-uses the GHA layer cache so it is near-instant</li>
+<li><strong>Push to GHCR</strong> — only on <code>main</code>; re-uses GHA layer cache so it is near-instant</li>
 <li><strong>Cosign sign</strong> — keyless signature stored in the registry alongside the image</li>
 <li><strong>Cosign attest</strong> — SBOM attached as a verifiable attestation to the image digest</li>
 </ol>
+<h2 id="codeqlyml">codeql.yml</h2>
+<p>Runs on push to <code>main</code>, PRs, and weekly (Monday 08:00 UTC).</p>
+<p>Performs source-level security analysis on <code>app.py</code> using the <code>security-and-quality</code>
+query suite. Findings are uploaded to <strong>Security → Code scanning</strong> as SARIF.</p>
+<p>Python does not require a build step for CodeQL — the action analyses the source directly.</p>
+<h2 id="scorecardyml">scorecard.yml</h2>
+<p>Runs on push to <code>main</code> and weekly (Monday 09:00 UTC).</p>
+<p>Evaluates the repository against <a href="https://securityscorecards.dev/">OSSF Scorecard</a>
+best practices, including:</p>
+<ul>
+<li>Branch protection rules</li>
+<li>Required code review</li>
+<li>Dependency version pinning</li>
+<li>CI test coverage</li>
+<li>Signed releases</li>
+</ul>
+<p>Results are uploaded to <strong>Security → Code scanning</strong> and published to the OpenSSF
+REST API to power the public scorecard badge (<code>publish_results: true</code>).</p>
 <h2 id="automatic-versioning">Automatic versioning</h2>
 <p>Versions are bumped automatically from commit messages using the
 <a href="https://www.conventionalcommits.org/">Angular convention</a>:</p>
