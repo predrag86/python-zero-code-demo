@@ -43,24 +43,36 @@ aws ecs update-service --cluster <cluster> --service <service> --task-definition
 
 ## CI/CD pipeline
 
-`.github/workflows/ci.yml` runs on every push to `main` and every PR:
+Three workflows in `.github/workflows/`:
+
+### ci.yml — runs on every push to `main` and every PR
 
 | Job | Tool | Needs | Runs on |
 |---|---|---|---|
-| `build` | pip install, pip-audit, import check | — | all events |
+| `build` | pip install (cached venv), pip-audit, import check | — | all events |
 | `dependency-review` | `actions/dependency-review-action` | — | PRs only |
 | `lint` | black → ruff (auto-fix) → pylint → bandit → mypy | `build` | all events |
-| `test` | `pytest` (Python 3.11, 3.12, 3.13 matrix) | `build` | all events |
+| `test` | pytest matrix (Python 3.11, 3.12, 3.13) + Codecov | `build` | all events |
 | `release` | `python-semantic-release` | `lint`, `test` | push to main only |
 | `docker` | build → smoke test → Trivy → SARIF → SBOM → push | `lint`, `test`, `release` | all events (push to GHCR on main only) |
 
-`lint` and `test` run in parallel after `build` — the test job does not wait for lint.
+`lint` and `test` run in parallel after `build`. The virtualenv is built once in `build` and restored from `actions/cache` in `lint` and `test` — no redundant installs.
 
-**Test matrix:** pytest runs against Python 3.11, 3.12, and 3.13 simultaneously (`fail-fast: false`). Coverage is uploaded to Codecov from the 3.12 run only (80% minimum threshold enforced).
+**Test matrix:** pytest runs against Python 3.11, 3.12, and 3.13 (`fail-fast: false`). `pytest-github-actions-annotate-failures` annotates PR diffs with failed test locations inline. Coverage uploaded to Codecov from the 3.12 run (80% minimum enforced).
+
+**Release gate:** the `release` job is protected by the `production` GitHub Environment — a required reviewer must approve before the version is tagged and the image is pushed to GHCR. Configure at Settings → Environments → production.
 
 **Security scanning:**
 - `dependency-review` blocks PRs that introduce dependencies with known CVEs.
-- Trivy scans the runtime image for unfixed CRITICAL/HIGH CVEs (fails the build if found) and also uploads a SARIF report to the repo's Security → Code scanning tab.
+- Trivy scans the runtime image for unfixed CRITICAL/HIGH CVEs (fails the build) and uploads SARIF to Security → Code scanning.
+
+### codeql.yml — push to main, PRs, weekly (Mon 08:00 UTC)
+
+Source-level security analysis on `app.py` using the `security-and-quality` query suite. Findings go to Security → Code scanning.
+
+### scorecard.yml — push to main, weekly (Mon 09:00 UTC)
+
+OSSF Scorecard evaluation of repo security practices (branch protection, dependency pinning, signed releases, etc.). Results go to Security → Code scanning and power the public scorecard badge.
 
 **Automatic versioning** uses [Angular commit convention](https://www.conventionalcommits.org/):
 - `fix: ...` → patch bump (0.1.0 → 0.1.1)

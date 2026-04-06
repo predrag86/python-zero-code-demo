@@ -1,6 +1,6 @@
 # Supply Chain Security
 
-Every image pushed to GHCR on `main` goes through three supply chain security steps.
+The repository applies defence-in-depth across source, dependencies, and the published image.
 
 ## SBOM
 
@@ -43,6 +43,28 @@ cosign verify-attestation \
 The `docker/build-push-action` generates a signed **SLSA provenance** attestation
 (`provenance: true`) and an **OCI SBOM** (`sbom: true`) for every pushed image,
 stored as attestations in GHCR.
+
+## Source analysis (CodeQL)
+
+Every push to `main` and every PR is analysed by
+[CodeQL](https://codeql.github.com/) (`codeql.yml`) using the
+`security-and-quality` query suite. It catches injection flaws, insecure
+deserialization, and other patterns that linters miss. A weekly scheduled run
+catches newly published queries. Findings appear in **Security → Code scanning**.
+
+## Repository posture (OSSF Scorecard)
+
+A weekly `scorecard.yml` workflow evaluates the repo against
+[OSSF Scorecard](https://securityscorecards.dev/) best practices:
+
+- Branch protection and required code review
+- Dependency version pinning
+- CI test enforcement
+- Signed releases
+- Token permission hygiene
+
+Results are uploaded to **Security → Code scanning** and published to the OpenSSF
+API to power the public scorecard badge.
 
 ## Dependency Review
 
