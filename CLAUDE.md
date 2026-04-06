@@ -45,13 +45,22 @@ aws ecs update-service --cluster <cluster> --service <service> --task-definition
 
 `.github/workflows/ci.yml` runs on every push to `main` and every PR:
 
-| Job | Tool | Runs on |
-|---|---|---|
-| `lint` | `ruff check` + `ruff format --check` | all events |
-| `typecheck` | `mypy app.py` | all events |
-| `test` | `pytest` | all events |
-| `release` | `python-semantic-release` | push to main only |
-| `docker` | build → smoke test → Trivy → push | all events (push to GHCR on main only) |
+| Job | Tool | Needs | Runs on |
+|---|---|---|---|
+| `build` | pip install, pip-audit, import check | — | all events |
+| `dependency-review` | `actions/dependency-review-action` | — | PRs only |
+| `lint` | black → ruff (auto-fix) → pylint → bandit → mypy | `build` | all events |
+| `test` | `pytest` (Python 3.11, 3.12, 3.13 matrix) | `build` | all events |
+| `release` | `python-semantic-release` | `lint`, `test` | push to main only |
+| `docker` | build → smoke test → Trivy → SARIF → SBOM → push | `lint`, `test`, `release` | all events (push to GHCR on main only) |
+
+`lint` and `test` run in parallel after `build` — the test job does not wait for lint.
+
+**Test matrix:** pytest runs against Python 3.11, 3.12, and 3.13 simultaneously (`fail-fast: false`). Coverage is uploaded to Codecov from the 3.12 run only (80% minimum threshold enforced).
+
+**Security scanning:**
+- `dependency-review` blocks PRs that introduce dependencies with known CVEs.
+- Trivy scans the runtime image for unfixed CRITICAL/HIGH CVEs (fails the build if found) and also uploads a SARIF report to the repo's Security → Code scanning tab.
 
 **Automatic versioning** uses [Angular commit convention](https://www.conventionalcommits.org/):
 - `fix: ...` → patch bump (0.1.0 → 0.1.1)

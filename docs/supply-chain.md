@@ -44,13 +44,26 @@ The `docker/build-push-action` generates a signed **SLSA provenance** attestatio
 (`provenance: true`) and an **OCI SBOM** (`sbom: true`) for every pushed image,
 stored as attestations in GHCR.
 
+## Dependency Review
+
+Every pull request is checked by `actions/dependency-review-action` before it can
+be merged. It compares the dependency graph before and after the PR and blocks merge
+if any newly introduced package has a known vulnerability.
+
 ## Vulnerability scanning
 
-[Trivy](https://trivy.dev/) scans the runtime image on every CI run. The pipeline
-fails on any **unfixed** `CRITICAL` or `HIGH` severity vulnerability.
+[Trivy](https://trivy.dev/) scans the runtime image on every CI run in two passes:
 
+**Pass 1 — pipeline gate**
 ```
 Severity filter : CRITICAL, HIGH
 Unfixed only    : yes (ignore vulnerabilities with no available fix)
 Exit code       : 1 (blocks the pipeline)
 ```
+
+**Pass 2 — SARIF upload**
+
+Results are exported in SARIF format and uploaded to the repo's
+**Security → Code scanning** tab via `github/codeql-action/upload-sarif`. This
+provides a persistent, searchable view of image CVEs directly in GitHub, independent
+of whether the pipeline passed or failed.
