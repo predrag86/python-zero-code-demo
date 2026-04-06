@@ -8,19 +8,18 @@ on:
     - cron: "0 9 * * 1"
 
 permissions:
-  # Required to upload SARIF results to the Security tab
-  security-events: write
-  # Required by the Scorecard action to read repo contents
   contents: read
-  # Required to publish results to the dependency graph
-  actions: read
-  id-token: write
 
 jobs:
   scorecard:
     name: OSSF Scorecard
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      security-events: write   # upload SARIF to Security tab
+      contents: read
+      actions: read
+      id-token: write          # publish results to OSSF API (job-scoped only — global write blocked by scorecard-action)
     steps:
       - uses: actions/checkout@v6
         with:
