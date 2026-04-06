@@ -38,7 +38,7 @@ jobs:
 
       - name: Cache virtualenv
         id: cache-venv
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-${{ runner.os }}-py3.12-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
@@ -89,7 +89,7 @@ jobs:
 
       - name: Restore virtualenv
         id: cache-venv
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-${{ runner.os }}-py3.12-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
@@ -155,7 +155,7 @@ jobs:
 
       - name: Restore virtualenv
         id: cache-venv
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'requirements-dev.txt') }}
@@ -312,7 +312,7 @@ jobs:
           output: trivy.sarif
 
       - name: Upload Trivy SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy.sarif
 
