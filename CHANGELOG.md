@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.13.3 (2026-04-06)
+
+### Bug Fixes
+
+- Updated version of Gihub actions
+  ([`5a22c94`](https://github.com/predrag86/python-zero-code-demo/commit/5a22c941180e4a87762b74b7d6b66e95f651a308))
+
+
 ## v0.13.2 (2026-04-06)
 
 
