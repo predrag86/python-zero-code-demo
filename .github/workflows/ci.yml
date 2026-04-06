@@ -19,6 +19,7 @@ permissions:
   contents: write          # semantic-release: push version commit + tag
   packages: write          # push image to GHCR
   id-token: write          # build provenance / SBOM attestations
+  security-events: write   # upload Trivy SARIF to GitHub Security tab
 
 # ── Job 1: Build ─────────────────────────────────────────────────────────────
 # Installs all dependencies and verifies the app is importable.
@@ -27,6 +28,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -44,12 +46,23 @@ jobs:
       - name: Verify app is importable
         run: python -c "import app"
 
-# ── Job 2: Lint ──────────────────────────────────────────────────────────────
+# ── Job 2: Dependency Review (PRs only) ──────────────────────────────────────
+# Flags newly introduced dependencies with known vulnerabilities before merge.
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/dependency-review-action@v4
+
+# ── Job 3: Lint ──────────────────────────────────────────────────────────────
 # black → ruff (auto-fix + commit) → pylint → mypy
   lint:
     name: Lint & Format (black → ruff → pylint → mypy)
     needs: [build]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
         with:
@@ -95,24 +108,37 @@ jobs:
       - name: mypy
         run: mypy app.py
 
-# ── Job 3: Unit Tests ────────────────────────────────────────────────────────
+# ── Job 4: Unit Tests ────────────────────────────────────────────────────────
+# Runs in parallel with lint (both gate on build, not each other).
+# Matrix across Python 3.11–3.13 to confirm cross-version compatibility.
+# Coverage is uploaded to Codecov from the 3.12 run only.
   test:
-    name: Unit Tests (pytest)
-    needs: [lint]
+    name: Unit Tests (pytest / Python ${{ matrix.python-version }})
+    needs: [build]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
           cache: pip
           cache-dependency-path: |
             requirements.txt
             requirements-dev.txt
       - run: pip install -r requirements.txt -r requirements-dev.txt
-      - run: pytest --tb=short -v --cov=app --cov-fail-under=80 --cov-report=term-missing
+      - run: pytest --tb=short -v --cov=app --cov-fail-under=80 --cov-report=term-missing --cov-report=xml
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.12'
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.xml
 
-# ── Job 4: Semantic Release (main only) ──────────────────────────────────────
+# ── Job 5: Semantic Release (main only) ──────────────────────────────────────
 # Analyzes commits since the last tag (Angular convention: fix/feat/BREAKING CHANGE),
 # bumps the version in pyproject.toml, commits, tags, and creates a GitHub release.
   release:
@@ -136,12 +162,13 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-# ── Job 5: Dockerise ─────────────────────────────────────────────────────────
+# ── Job 6: Dockerise ─────────────────────────────────────────────────────────
 # Build → smoke test → Trivy scan → push to GHCR → sign + attest SBOM
   docker:
     name: Dockerise
     needs: [lint, test, release]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     # Run when quality gates pass regardless of whether 'release' ran (PRs skip it)
     if: |
       always() &&
@@ -234,6 +261,19 @@ jobs:
           exit-code: "1"
           severity: CRITICAL,HIGH
           ignore-unfixed: true
+
+      # ── Trivy: SARIF upload to GitHub Security tab ────────────────────────
+      - name: Trivy SARIF report
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: inventory-service:ci
+          format: sarif
+          output: trivy.sarif
+
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy.sarif
 
       # ── SBOM ──────────────────────────────────────────────────────────────
       - name: Generate SBOM
