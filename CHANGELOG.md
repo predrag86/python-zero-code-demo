@@ -1,12 +1,18 @@
 # CHANGELOG
 
 
+## v0.13.2 (2026-04-06)
+
+
 ## v0.13.1 (2026-04-06)
 
 ### Bug Fixes
 
 - Fixed scorecard action version
   ([`99c0436`](https://github.com/predrag86/python-zero-code-demo/commit/99c04364d837291def1d1bca6862de5a8bd42f7b))
+
+- Osssf Scorecard
+  ([`0f9597c`](https://github.com/predrag86/python-zero-code-demo/commit/0f9597ce2231670270d4e62f579a1f8e9ef78a39))
 
 
 ## v0.13.0 (2026-04-06)
