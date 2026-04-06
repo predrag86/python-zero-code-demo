@@ -511,10 +511,43 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#lint-auto-fix" class="md-nav__link">
+  <a href="#build" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lint auto-fix
+        Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependency-review-prs-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Review (PRs only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test
       
     </span>
   </a>
@@ -687,10 +720,43 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#lint-auto-fix" class="md-nav__link">
+  <a href="#build" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Lint auto-fix
+        Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependency-review-prs-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Review (PRs only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test
       
     </span>
   </a>
@@ -762,10 +828,10 @@
 
 <h1 id="cicd">CI/CD</h1>
 <p>The pipeline runs on every push to <code>main</code> and every pull request.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>lint ──┐
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>       ├──→ release (main only) ──→ docker: build → smoke test → Trivy → SBOM → push → sign
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>typecheck ─┤
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>test ──────┘
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>build ──┬──→ lint ──┐
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        │           ├──→ release (main only) ──→ docker: build → smoke test → Trivy → SARIF → push → sign
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        └──→ test ──┘
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>dependency-review (PRs only, parallel)
 </code></pre></div>
 <h2 id="jobs">Jobs</h2>
 <table>
@@ -773,48 +839,81 @@
 <tr>
 <th>Job</th>
 <th>Tool</th>
+<th>Needs</th>
 <th>Runs on</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>lint</code></td>
-<td>ruff (lint + format, auto-fix committed back)</td>
+<td><code>build</code></td>
+<td>pip install, pip-audit, import check</td>
+<td>—</td>
 <td>all events</td>
 </tr>
 <tr>
-<td><code>typecheck</code></td>
-<td>mypy</td>
+<td><code>dependency-review</code></td>
+<td>actions/dependency-review-action</td>
+<td>—</td>
+<td>PRs only</td>
+</tr>
+<tr>
+<td><code>lint</code></td>
+<td>black → ruff (auto-fix) → pylint → bandit → mypy</td>
+<td><code>build</code></td>
 <td>all events</td>
 </tr>
 <tr>
 <td><code>test</code></td>
-<td>pytest</td>
+<td>pytest (Python 3.11, 3.12, 3.13 matrix) + Codecov</td>
+<td><code>build</code></td>
 <td>all events</td>
 </tr>
 <tr>
 <td><code>release</code></td>
 <td>python-semantic-release</td>
+<td><code>lint</code>, <code>test</code></td>
 <td>push to <code>main</code> only</td>
 </tr>
 <tr>
 <td><code>docker</code></td>
-<td>multi-stage build, smoke test, Trivy, SBOM, Cosign, GHCR push</td>
+<td>multi-stage build, smoke test, Trivy, SARIF, SBOM, Cosign, GHCR push</td>
+<td><code>lint</code>, <code>test</code>, <code>release</code></td>
 <td>all events</td>
 </tr>
 </tbody>
 </table>
-<h3 id="lint-auto-fix">Lint auto-fix</h3>
-<p>The <code>lint</code> job runs <code>ruff check --fix</code> and <code>ruff format</code>, then commits any changes
-back to the branch automatically. For fork PRs the commit step is skipped (GitHub
-restricts token permissions on forks).</p>
+<h3 id="build">Build</h3>
+<p>Installs all dependencies, runs <code>pip check</code> to verify consistency, runs <code>pip-audit</code>
+to flag known CVEs in <code>requirements.txt</code>, and verifies <code>app.py</code> is importable.
+Acts as the gate for <code>lint</code> and <code>test</code>.</p>
+<h3 id="dependency-review-prs-only">Dependency Review (PRs only)</h3>
+<p>Runs <code>actions/dependency-review-action</code> on every pull request. Blocks merge if any
+newly introduced dependency has a known vulnerability. Runs independently of <code>build</code>
+so it does not add to the critical path.</p>
+<h3 id="lint">Lint</h3>
+<p>Runs in parallel with <code>test</code> (both gate only on <code>build</code>):</p>
+<ol>
+<li><strong>black</strong> — enforces consistent formatting</li>
+<li><strong>ruff check --fix</strong> + <strong>ruff format</strong> — lints and formats; any changes are committed back to the branch automatically (skipped for fork PRs)</li>
+<li><strong>pylint</strong> — static analysis</li>
+<li><strong>bandit</strong> — security-focused static analysis</li>
+<li><strong>mypy</strong> — type checking</li>
+</ol>
+<h3 id="test">Test</h3>
+<p>Runs in parallel with <code>lint</code>. Uses a matrix across <strong>Python 3.11, 3.12, and 3.13</strong>
+(<code>fail-fast: false</code> so all three variants always complete):</p>
+<ul>
+<li><code>pytest</code> with <code>--cov=app --cov-fail-under=80</code> — build fails if coverage drops below 80%</li>
+<li>Coverage XML uploaded to <strong>Codecov</strong> from the Python 3.12 run only (avoids triple uploads)</li>
+</ul>
 <h3 id="docker-job-steps">Docker job steps</h3>
 <ol>
 <li><strong>Build test stage</strong> — runs ruff, mypy, and pytest inside the container</li>
 <li><strong>Build runtime image</strong> — loaded locally for smoke testing and scanning</li>
 <li><strong>Smoke test</strong> — starts the container, hits key endpoints with <code>curl</code></li>
-<li><strong>Trivy scan</strong> — fails the build on unfixed <code>CRITICAL</code> or <code>HIGH</code> vulnerabilities</li>
-<li><strong>Generate SBOM</strong> — Trivy produces an SPDX JSON file, uploaded as a workflow artifact</li>
+<li><strong>Trivy scan (table)</strong> — fails the build on unfixed <code>CRITICAL</code> or <code>HIGH</code> vulnerabilities</li>
+<li><strong>Trivy SARIF upload</strong> — sends findings to the repo's Security → Code scanning tab</li>
+<li><strong>Generate SBOM</strong> — Trivy produces an SPDX JSON file, uploaded as a workflow artifact (90-day retention)</li>
 <li><strong>Push to GHCR</strong> — only on <code>main</code>; re-uses the GHA layer cache so it is near-instant</li>
 <li><strong>Cosign sign</strong> — keyless signature stored in the registry alongside the image</li>
 <li><strong>Cosign attest</strong> — SBOM attached as a verifiable attestation to the image digest</li>

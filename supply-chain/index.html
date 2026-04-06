@@ -639,6 +639,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dependency-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#vulnerability-scanning" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -745,6 +756,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#dependency-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#vulnerability-scanning" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -812,13 +834,22 @@ using the GitHub Actions OIDC token and recorded in the
 <p>The <code>docker/build-push-action</code> generates a signed <strong>SLSA provenance</strong> attestation
 (<code>provenance: true</code>) and an <strong>OCI SBOM</strong> (<code>sbom: true</code>) for every pushed image,
 stored as attestations in GHCR.</p>
+<h2 id="dependency-review">Dependency Review</h2>
+<p>Every pull request is checked by <code>actions/dependency-review-action</code> before it can
+be merged. It compares the dependency graph before and after the PR and blocks merge
+if any newly introduced package has a known vulnerability.</p>
 <h2 id="vulnerability-scanning">Vulnerability scanning</h2>
-<p><a href="https://trivy.dev/">Trivy</a> scans the runtime image on every CI run. The pipeline
-fails on any <strong>unfixed</strong> <code>CRITICAL</code> or <code>HIGH</code> severity vulnerability.</p>
+<p><a href="https://trivy.dev/">Trivy</a> scans the runtime image on every CI run in two passes:</p>
+<p><strong>Pass 1 — pipeline gate</strong>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>Severity filter : CRITICAL, HIGH
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Unfixed only    : yes (ignore vulnerabilities with no available fix)
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Exit code       : 1 (blocks the pipeline)
-</code></pre></div>
+</code></pre></div></p>
+<p><strong>Pass 2 — SARIF upload</strong></p>
+<p>Results are exported in SARIF format and uploaded to the repo's
+<strong>Security → Code scanning</strong> tab via <code>github/codeql-action/upload-sarif</code>. This
+provides a persistent, searchable view of image CVEs directly in GitHub, independent
+of whether the pipeline passed or failed.</p>
 
 
 
