@@ -1,7 +1,15 @@
 # CHANGELOG
 
 
+## v0.16.0 (2026-04-07)
+
+
 ## v0.15.0 (2026-04-07)
+
+### Features
+
+- Changed ossf
+  ([`11bc11b`](https://github.com/predrag86/python-zero-code-demo/commit/11bc11bc8b429e6810c72ab72da3dc256259295c))
 
 
 ## v0.14.0 (2026-04-07)
