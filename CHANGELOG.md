@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.14.0 (2026-04-07)
+
+### Features
+
+- Token for codecov report
+  ([`aae530a`](https://github.com/predrag86/python-zero-code-demo/commit/aae530a4bd576d39be429264a68faccde0c2344e))
+
+
 ## v0.13.4 (2026-04-06)
 
 
