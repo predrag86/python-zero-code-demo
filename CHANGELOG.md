@@ -1,6 +1,14 @@
 # CHANGELOG
 
 
+## v0.17.0 (2026-04-07)
+
+### Features
+
+- Reports for test to workflow summary
+  ([`aa46b41`](https://github.com/predrag86/python-zero-code-demo/commit/aa46b410c826af3cd6120d281890a8d0989e4dcd))
+
+
 ## v0.16.0 (2026-04-07)
 
 
